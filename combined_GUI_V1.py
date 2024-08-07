@@ -1,5 +1,5 @@
-#This is just me getting an idea of how to do the different forms of input, no seperate pages or classes
-
+#Trying to use a dictionary instead as the user will  be clicking which one they want combining the information may be faster/shorter
+#than appending to a list.
 
 import tkinter as tk
 from tkinter import messagebox
@@ -57,6 +57,14 @@ def display_summary():
         summary_text.insert(tk.END, f"Seat Type: {booking['Seat Type']}\n")
         summary_text.insert(tk.END, f"Cost: ${booking['Cost']}\n\n")
 
+# Function to clear all fields
+def clear_fields():
+    entry_first_name.delete(0, tk.END)
+    entry_last_name.delete(0, tk.END)
+    entry_mobile.delete(0, tk.END)
+    selected_route.set(None)
+    selected_seat_type.set(None)
+
 # Create the main application window
 root = tk.Tk()
 root.title("Go Bus Bookings")
@@ -92,7 +100,7 @@ for i, seat_type in enumerate(seat_types):
     tk.Radiobutton(root, text=seat_type, variable=selected_seat_type, value=seat_type).grid(row=7 + i, column=1, sticky='w')
 
 tk.Button(root, text="Confirm", command=add_booking).grid(row=9, column=1)
-tk.Button(root, text="Redo", command=lambda: root.destroy()).grid(row=9, column=0)
+tk.Button(root, text="Redo", command=clear_fields).grid(row=9, column=0)
 
 tk.Label(root, text="Summary").grid(row=10, column=0)
 summary_text = tk.Text(root, height=10, width=50)
@@ -100,3 +108,4 @@ summary_text.grid(row=11, column=0, columnspan=2)
 
 # Run the application
 root.mainloop()
+

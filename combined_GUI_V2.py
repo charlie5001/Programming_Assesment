@@ -1,187 +1,162 @@
+#Added a seat counter for debugging purposes.
+
 import tkinter as tk
 from tkinter import messagebox
 
-class GoBusBookingsApp(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        self.title("Go Bus Bookings")
-        self.geometry("400x400")
-        self.booking_id = 1
-        self.final_bookings = []
-        self.temp_bookings = {}
-        self.frames = {}
+# Global variables to store bookings and seat availability
+final_bookings = []
+temp_bookings = []
+booking_id = 1
 
-        self.create_frames()
-        self.show_frame(StartPage)
+# Define seat limits for different routes and seat types
+seat_limits = {
+    "One way from Palmerston North to Auckland": {"Recline": 20, "Bunk": 15},
+    "One way from Auckland to Palmerston North": {"Recline": 20, "Bunk": 15},
+}
 
-    def create_frames(self):
-        for F in (StartPage, RouteSelectionPage, SeatTypePage, ConfirmationPage, SummaryPage):
-            page_name = F.__name__
-            frame = F(parent=self, controller=self)
-            self.frames[page_name] = frame
-            frame.grid(row=0, column=0, sticky="nsew")
+# Define costs for different routes and seat types
+costs = {
+    "One way from Palmerston North to Auckland": {"Recline": 25, "Bunk": 50},
+    "One way from Auckland to Palmerston North": {"Recline": 25, "Bunk": 50},
+    "Return from Auckland": {"Recline": 50, "Bunk": 100},
+    "Return from Palmerston North": {"Recline": 50, "Bunk": 100}
+}
 
-    def show_frame(self, page_class):
-        frame = self.frames[page_class.__name__]
-        frame.tkraise()
+# Function to add a booking
+def add_booking():
+    global booking_id
+    first_name = entry_first_name.get()
+    last_name = entry_last_name.get()
+    mobile = entry_mobile.get()
+    route = selected_route.get()
+    seat_type = selected_seat_type.get()
+    
+    if not first_name or not last_name or not mobile or not route or not seat_type:
+        messagebox.showwarning("Input Error", "Please fill in all fields")
+        return
 
-    def add_booking(self):
-        self.temp_bookings['Booking ID'] = self.booking_id
-        self.final_bookings.append(self.temp_bookings.copy())
-        self.booking_id += 1
-        self.temp_bookings.clear()
-        self.show_frame(SummaryPage)
-
-    def display_summary(self, text_widget):
-        text_widget.delete(1.0, tk.END)
-        for booking in self.final_bookings:
-            for key, value in booking.items():
-                text_widget.insert(tk.END, f"{key}: {value}\n")
-            text_widget.insert(tk.END, "\n")
-
-class StartPage(tk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-        self.create_widgets()
-
-    def create_widgets(self):
-        tk.Label(self, text="First Name").grid(row=0, column=0)
-        self.entry_first_name = tk.Entry(self)
-        self.entry_first_name.grid(row=0, column=1)
-
-        tk.Label(self, text="Last Name").grid(row=1, column=0)
-        self.entry_last_name = tk.Entry(self)
-        self.entry_last_name.grid(row=1, column=1)
-
-        tk.Label(self, text="Mobile Number").grid(row=2, column=0)
-        self.entry_mobile = tk.Entry(self)
-        self.entry_mobile.grid(row=2, column=1)
-
-        tk.Button(self, text="Confirm", command=self.save_and_next).grid(row=3, column=1)
-        tk.Button(self, text="Summary", command=lambda: self.controller.show_frame(SummaryPage)).grid(row=3, column=0)
-
-    def save_and_next(self):
-        first_name = self.entry_first_name.get()
-        last_name = self.entry_last_name.get()
-        mobile = self.entry_mobile.get()
-
-        if not first_name or not last_name or not mobile:
-            messagebox.showwarning("Input Error", "Please fill in all fields")
+    # Check seat availability for return trips
+    if "Return" in route:
+        if route == "Return from Auckland":
+            if seat_limits["One way from Auckland to Palmerston North"][seat_type] <= 0 or seat_limits["One way from Palmerston North to Auckland"][seat_type] <= 0:
+                messagebox.showwarning("Seat Unavailable", f"No available {seat_type} seats for the return trip.")
+                return
+        elif route == "Return from Palmerston North":
+            if seat_limits["One way from Palmerston North to Auckland"][seat_type] <= 0 or seat_limits["One way from Auckland to Palmerston North"][seat_type] <= 0:
+                messagebox.showwarning("Seat Unavailable", f"No available {seat_type} seats for the return trip.")
+                return
+    else:
+        # Check seat availability for one way trips
+        if seat_limits[route][seat_type] <= 0:
+            messagebox.showwarning("Seat Unavailable", f"No available {seat_type} seats on {route}.")
             return
 
-        self.controller.temp_bookings['First Name'] = first_name
-        self.controller.temp_bookings['Last Name'] = last_name
-        self.controller.temp_bookings['Mobile'] = mobile
-        self.controller.show_frame(RouteSelectionPage)
-
-class RouteSelectionPage(tk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-        self.create_widgets()
-
-    def create_widgets(self):
-        tk.Label(self, text="Select Route").grid(row=0, column=0)
-        self.routes = [
-            "One way from Palmerston North to Auckland",
-            "One way from Auckland to Palmerston North",
-            "Return from Auckland",
-            "Return from Palmerston North"
-        ]
-        self.selected_route = tk.StringVar()
-        for i, route in enumerate(self.routes):
-            tk.Radiobutton(self, text=route, variable=self.selected_route, value=route).grid(row=i+1, column=0, sticky='w')
-
-        tk.Button(self, text="Confirm", command=self.save_and_next).grid(row=5, column=0)
-        tk.Button(self, text="Redo", command=lambda: self.controller.show_frame(StartPage)).grid(row=5, column=1)
-
-    def save_and_next(self):
-        route = self.selected_route.get()
-        if not route:
-            messagebox.showwarning("Input Error", "Please select a route")
-            return
-
-        self.controller.temp_bookings['Route'] = route
-        self.controller.show_frame(SeatTypePage)
-
-class SeatTypePage(tk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-        self.create_widgets()
-
-    def create_widgets(self):
-        tk.Label(self, text="Select Seat Type").grid(row=0, column=0)
-        self.seat_types = ["Recline", "Bunk"]
-        self.selected_seat_type = tk.StringVar()
-        for i, seat_type in enumerate(self.seat_types):
-            tk.Radiobutton(self, text=seat_type, variable=self.selected_seat_type, value=seat_type).grid(row=i+1, column=0, sticky='w')
-
-        tk.Button(self, text="Confirm", command=self.save_and_next).grid(row=3, column=0)
-        tk.Button(self, text="Redo", command=lambda: self.controller.show_frame(StartPage)).grid(row=3, column=1)
-
-    def save_and_next(self):
-        seat_type = self.selected_seat_type.get()
-        if not seat_type:
-            messagebox.showwarning("Input Error", "Please select a seat type")
-            return
-
-        self.controller.temp_bookings['Seat Type'] = seat_type
-        self.controller.show_frame(ConfirmationPage)
-
-class ConfirmationPage(tk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-        self.create_widgets()
-
-    def create_widgets(self):
-        tk.Label(self, text="Confirm your booking details").grid(row=0, column=0, columnspan=2)
-        self.details_text = tk.Text(self, height=10, width=50)
-        self.details_text.grid(row=1, column=0, columnspan=2)
-
-        tk.Button(self, text="Confirm", command=self.confirm_booking).grid(row=2, column=1)
-        tk.Button(self, text="Redo", command=lambda: self.controller.show_frame(StartPage)).grid(row=2, column=0)
-
-    def confirm_booking(self):
-        route = self.controller.temp_bookings['Route']
-        seat_type = self.controller.temp_bookings['Seat Type']
-        cost = costs[route][seat_type]
-        self.controller.temp_bookings['Cost'] = cost
-        self.controller.add_booking()
-
-    def tkraise(self, aboveThis=None):
-        super().tkraise(aboveThis)
-        self.details_text.delete(1.0, tk.END)
-        for key, value in self.controller.temp_bookings.items():
-            self.details_text.insert(tk.END, f"{key}: {value}\n")
-
-class SummaryPage(tk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-        self.create_widgets()
-
-    def create_widgets(self):
-        tk.Label(self, text="Booking Summary").grid(row=0, column=0)
-        self.summary_text = tk.Text(self, height=15, width=50)
-        self.summary_text.grid(row=1, column=0, columnspan=2)
-
-        tk.Button(self, text="Redo", command=lambda: self.controller.show_frame(StartPage)).grid(row=2, column=0)
-        tk.Button(self, text="Confirm", command=lambda: self.controller.show_frame(StartPage)).grid(row=2, column=1)
-
-    def tkraise(self, aboveThis=None):
-        super().tkraise(aboveThis)
-        self.controller.display_summary(self.summary_text)
-
-if __name__ == "__main__":
-    costs = {
-        "One way from Palmerston North to Auckland": {"Recline": 25, "Bunk": 50},
-        "One way from Auckland to Palmerston North": {"Recline": 25, "Bunk": 50},
-        "Return from Auckland": {"Recline": 50, "Bunk": 100},
-        "Return from Palmerston North": {"Recline": 50, "Bunk": 100}
+    cost = costs[route][seat_type]
+    booking = {
+        "Booking ID": booking_id,
+        "First Name": first_name,
+        "Last Name": last_name,
+        "Mobile": mobile,
+        "Route": route,
+        "Seat Type": seat_type,
+        "Cost": cost
     }
+    
+    final_bookings.append(booking)
+    booking_id += 1
 
-    app = GoBusBookingsApp()
-    app.mainloop()
+    # Decrease the seat count
+    if "Return" in route:
+        if route == "Return from Auckland":
+            seat_limits["One way from Auckland to Palmerston North"][seat_type] -= 1
+            seat_limits["One way from Palmerston North to Auckland"][seat_type] -= 1
+        elif route == "Return from Palmerston North":
+            seat_limits["One way from Palmerston North to Auckland"][seat_type] -= 1
+            seat_limits["One way from Auckland to Palmerston North"][seat_type] -= 1
+    else:
+        seat_limits[route][seat_type] -= 1
+
+    update_seat_counters()  # Update the seat counters
+    display_summary()
+
+# Function to display summary
+def display_summary():
+    summary_text.delete(1.0, tk.END)
+    for booking in final_bookings:
+        summary_text.insert(tk.END, f"Booking ID: {booking['Booking ID']}\n")
+        summary_text.insert(tk.END, f"First Name: {booking['First Name']}\n")
+        summary_text.insert(tk.END, f"Last Name: {booking['Last Name']}\n")
+        summary_text.insert(tk.END, f"Mobile: {booking['Mobile']}\n")
+        summary_text.insert(tk.END, f"Route: {booking['Route']}\n")
+        summary_text.insert(tk.END, f"Seat Type: {booking['Seat Type']}\n")
+        summary_text.insert(tk.END, f"Cost: ${booking['Cost']}\n\n")
+
+# Function to clear all fields
+def clear_fields():
+    entry_first_name.delete(0, tk.END)
+    entry_last_name.delete(0, tk.END)
+    entry_mobile.delete(0, tk.END)
+    selected_route.set(None)
+    selected_seat_type.set(None)
+
+# Function to update seat counters
+def update_seat_counters():
+    for route in seat_limits:
+        recline_label_vars[route].set(f"{route} Recline Seats Available: {seat_limits[route]['Recline']}")
+        bunk_label_vars[route].set(f"{route} Bunk Seats Available: {seat_limits[route]['Bunk']}")
+
+# Create the main application window
+root = tk.Tk()
+root.title("Go Bus Bookings")
+
+# Create and place the widgets
+tk.Label(root, text="First Name").grid(row=0, column=0)
+entry_first_name = tk.Entry(root)
+entry_first_name.grid(row=0, column=1)
+
+tk.Label(root, text="Last Name").grid(row=1, column=0)
+entry_last_name = tk.Entry(root)
+entry_last_name.grid(row=1, column=1)
+
+tk.Label(root, text="Mobile Number").grid(row=2, column=0)
+entry_mobile = tk.Entry(root)
+entry_mobile.grid(row=2, column=1)
+
+tk.Label(root, text="Route").grid(row=3, column=0)
+routes = [
+    "One way from Palmerston North to Auckland",
+    "One way from Auckland to Palmerston North",
+    "Return from Auckland",
+    "Return from Palmerston North"
+]
+selected_route = tk.StringVar()
+for i, route in enumerate(routes):
+    tk.Radiobutton(root, text=route, variable=selected_route, value=route).grid(row=3 + i, column=1, sticky='w')
+
+# Seat availability labels
+recline_label_vars = {}
+bunk_label_vars = {}
+for i, route in enumerate(seat_limits):
+    recline_label_vars[route] = tk.StringVar()
+    bunk_label_vars[route] = tk.StringVar()
+    tk.Label(root, textvariable=recline_label_vars[route]).grid(row=3 + i, column=2, sticky='w')
+    tk.Label(root, textvariable=bunk_label_vars[route]).grid(row=3 + i + 2, column=2, sticky='w')
+
+tk.Label(root, text="Seat Type").grid(row=7, column=0)
+seat_types = ["Recline", "Bunk"]
+selected_seat_type = tk.StringVar()
+for i, seat_type in enumerate(seat_types):
+    tk.Radiobutton(root, text=seat_type, variable=selected_seat_type, value=seat_type).grid(row=7 + i, column=1, sticky='w')
+
+tk.Button(root, text="Confirm", command=add_booking).grid(row=9, column=1)
+tk.Button(root, text="Redo", command=clear_fields).grid(row=9, column=0)
+
+tk.Label(root, text="Summary").grid(row=10, column=0)
+summary_text = tk.Text(root, height=10, width=50)
+summary_text.grid(row=11, column=0, columnspan=2)
+
+# Initialize seat counters
+update_seat_counters()
+
+# Run the application
+root.mainloop()
