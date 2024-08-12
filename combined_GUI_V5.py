@@ -1,5 +1,5 @@
-#Changed the background colour and text colour to match the assessment criteria
-
+#in the process of making the elements larger, and making the the buttons more aligned to the centre
+#the comment above will be removed when this is complete.
 import tkinter as tk
 from tkinter import messagebox
 
@@ -8,7 +8,7 @@ class Go_Bus_Bookings_App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Go Bus Bookings")
-        self.geometry("400x400")
+        self.geometry("450x600")  # Increase window size for better spacing
         self.configure(bg='darkblue')  # Set the background color to dark blue
         self.booking_id = 1
         self.final_bookings = []
@@ -102,21 +102,21 @@ class Start_Page(tk.Frame):
 
     # Create widgets for the start page
     def create_widgets(self):
-        tk.Label(self, text="First Name", bg='darkblue', fg='gold').grid(row=0, column=0)  # Set the title to gold
-        self.entry_first_name = tk.Entry(self)
-        self.entry_first_name.grid(row=0, column=1)
+        tk.Label(self, text="First Name", bg='darkblue', fg='gold', font=('Arial', 18, 'bold')).grid(row=0, column=0, sticky="e", padx=20, pady=10)  # Set the title to gold
+        self.entry_first_name = tk.Entry(self, font=('Arial', 18))
+        self.entry_first_name.grid(row=0, column=1, padx=10, pady=10)
 
-        tk.Label(self, text="Last Name", bg='darkblue', fg='gold').grid(row=1, column=0)  # Set the title to gold
-        self.entry_last_name = tk.Entry(self)
-        self.entry_last_name.grid(row=1, column=1)
+        tk.Label(self, text="Last Name", bg='darkblue', fg='gold', font=('Arial', 18, 'bold')).grid(row=1, column=0, sticky="e", padx=20, pady=10)  # Set the title to gold
+        self.entry_last_name = tk.Entry(self, font=('Arial', 18))
+        self.entry_last_name.grid(row=1, column=1, padx=10, pady=10)
 
-        tk.Label(self, text="Mobile Number", bg='darkblue', fg='gold').grid(row=2, column=0)  # Set the title to gold
-        self.entry_mobile = tk.Entry(self)
-        self.entry_mobile.grid(row=2, column=1)
+        tk.Label(self, text="Mobile Number", bg='darkblue', fg='gold', font=('Arial', 18, 'bold')).grid(row=2, column=0, sticky="e", padx=20, pady=10)  # Set the title to gold
+        self.entry_mobile = tk.Entry(self, font=('Arial', 18))
+        self.entry_mobile.grid(row=2, column=1, padx=10, pady=10)
 
-        tk.Button(self, text="Confirm", command=self.save_and_next).grid(row=3, column=1)
-        tk.Button(self, text="Summary", command=lambda: self.controller.show_frame("Summary_Page")).grid(row=3, column=0)
-        tk.Button(self, text="View Available Seats", command=lambda: self.controller.show_frame("AvailableSeatsPage")).grid(row=4, column=0, columnspan=2)
+        tk.Button(self, text="Confirm", command=self.save_and_next, font=('Arial', 18)).grid(row=3, column=1, pady=20)
+        tk.Button(self, text="Summary", command=lambda: self.controller.show_frame("Summary_Page"), font=('Arial', 18)).grid(row=3, column=0, pady=20)
+        tk.Button(self, text="View Available Seats", command=lambda: self.controller.show_frame("AvailableSeatsPage"), font=('Arial', 18)).grid(row=4, column=0, columnspan=2, pady=10)
 
     # Save the entered details and proceed to the next page
     def save_and_next(self):
@@ -148,7 +148,7 @@ class Route_Selection_Page(tk.Frame):
 
     # Create widgets for route selection
     def create_widgets(self):
-        tk.Label(self, text="Select Route", bg='darkblue', fg='gold').grid(row=0, column=0)  # Set the title to gold
+        tk.Label(self, text="Select Route", bg='darkblue', fg='gold', font=('Arial', 18, 'bold')).grid(row=0, column=0, columnspan=2, pady=10)  # Set the title to gold
         self.routes = [
             "One way from Palmerston North to Auckland",
             "One way from Auckland to Palmerston North",
@@ -157,18 +157,18 @@ class Route_Selection_Page(tk.Frame):
         ]
         self.selected_route = tk.StringVar()
         for i, route in enumerate(self.routes):
-            tk.Radiobutton(self, text=route, variable=self.selected_route, value=route).grid(row=i+1, column=0, sticky='w')
+            tk.Radiobutton(self, text=route, variable=self.selected_route, value=route, font=('Arial', 16)).grid(row=i+1, column=0, columnspan=2, sticky='w', padx=20, pady=5)
 
-        tk.Button(self, text="Confirm", command=self.save_and_next).grid(row=5, column=0)
-        tk.Button(self, text="Redo", command=self.redo).grid(row=5, column=1)
+        tk.Button(self, text="Confirm", command=self.save_and_next, font=('Arial', 18)).grid(row=5, column=1, pady=20)
+        tk.Button(self, text="Redo", command=self.redo, font=('Arial', 18)).grid(row=5, column=0, pady=20)
 
         self.recline_label_vars = {}
         self.bunk_label_vars = {}
         for i, route in enumerate(self.controller.seat_limits):
             self.recline_label_vars[route] = tk.StringVar()
             self.bunk_label_vars[route] = tk.StringVar()
-            tk.Label(self, textvariable=self.recline_label_vars[route], bg='darkblue', fg='gold').grid(row=6 + i, column=0, sticky='w')  # Set the title to gold
-            tk.Label(self, textvariable=self.bunk_label_vars[route], bg='darkblue', fg='gold').grid(row=8 + i, column=0, sticky='w')  # Set the title to gold
+            tk.Label(self, textvariable=self.recline_label_vars[route], bg='darkblue', fg='gold', font=('Arial', 16)).grid(row=6 + i, column=0, columnspan=2, sticky='w', padx=20)  # Set the title to gold
+            tk.Label(self, textvariable=self.bunk_label_vars[route], bg='darkblue', fg='gold', font=('Arial', 16)).grid(row=8 + i, column=0, columnspan=2, sticky='w', padx=20)  # Set the title to gold
 
     # Save the selected route and proceed to the next page
     def save_and_next(self):
@@ -204,14 +204,14 @@ class Seat_Type_Page(tk.Frame):
 
     # Create widgets for seat type selection
     def create_widgets(self):
-        tk.Label(self, text="Select Seat Type", bg='darkblue', fg='gold').grid(row=0, column=0)  # Set the title to gold
+        tk.Label(self, text="Select Seat Type", bg='darkblue', fg='gold', font=('Arial', 18, 'bold')).grid(row=0, column=0, columnspan=2, pady=10)  # Set the title to gold
         self.seat_types = ["Recline", "Bunk"]
         self.selected_seat_type = tk.StringVar()
         for i, seat_type in enumerate(self.seat_types):
-            tk.Radiobutton(self, text=seat_type, variable=self.selected_seat_type, value=seat_type).grid(row=i+1, column=0, sticky='w')
+            tk.Radiobutton(self, text=seat_type, variable=self.selected_seat_type, value=seat_type, font=('Arial', 16)).grid(row=i+1, column=0, columnspan=2, sticky='w', padx=20, pady=5)
 
-        tk.Button(self, text="Confirm", command=self.save_and_next).grid(row=3, column=0)
-        tk.Button(self, text="Redo", command=self.redo).grid(row=3, column=1)
+        tk.Button(self, text="Confirm", command=self.save_and_next, font=('Arial', 18)).grid(row=3, column=1, pady=20)
+        tk.Button(self, text="Redo", command=self.redo, font=('Arial', 18)).grid(row=3, column=0, pady=20)
 
     # Save the selected seat type and proceed to the next page
     def save_and_next(self):
@@ -241,12 +241,12 @@ class Confirmation_Page(tk.Frame):
 
     # Create widgets for confirmation page
     def create_widgets(self):
-        tk.Label(self, text="Confirm your booking details", bg='darkblue', fg='gold').grid(row=0, column=0, columnspan=2)  # Set the title to gold
-        self.details_text = tk.Text(self, height=10, width=50)
-        self.details_text.grid(row=1, column=0, columnspan=2)
+        tk.Label(self, text="Confirm your booking details", bg='darkblue', fg='gold', font=('Arial', 18, 'bold')).grid(row=0, column=0, columnspan=2, pady=10)  # Set the title to gold
+        self.details_text = tk.Text(self, height=10, width=40, font=('Arial', 16))
+        self.details_text.grid(row=1, column=0, columnspan=2, padx=20, pady=10)
 
-        tk.Button(self, text="Confirm", command=self.confirm_booking).grid(row=2, column=1)
-        tk.Button(self, text="Redo", command=self.redo).grid(row=2, column=0)
+        tk.Button(self, text="Confirm", command=self.confirm_booking, font=('Arial', 18)).grid(row=2, column=1, pady=20)
+        tk.Button(self, text="Redo", command=self.redo, font=('Arial', 18)).grid(row=2, column=0, pady=20)
 
     # Confirm the booking and proceed to the summary page
     def confirm_booking(self):
@@ -276,12 +276,12 @@ class Summary_Page(tk.Frame):
 
     # Create widgets for summary page
     def create_widgets(self):
-        tk.Label(self, text="Booking Summary", bg='darkblue', fg='gold').grid(row=0, column=0)  # Set the title to gold
-        self.summary_text = tk.Text(self, height=15, width=50)
-        self.summary_text.grid(row=1, column=0, columnspan=2)
+        tk.Label(self, text="Booking Summary", bg='darkblue', fg='gold', font=('Arial', 18, 'bold')).grid(row=0, column=0, columnspan=2, pady=10)  # Set the title to gold
+        self.summary_text = tk.Text(self, height=15, width=40, font=('Arial', 16))
+        self.summary_text.grid(row=1, column=0, columnspan=2, padx=20, pady=10)
 
-        tk.Button(self, text="Redo", command=lambda: self.controller.show_frame("Start_Page")).grid(row=2, column=0)
-        tk.Button(self, text="Confirm", command=lambda: self.controller.show_frame("Start_Page")).grid(row=2, column=1)
+        tk.Button(self, text="Redo", command=lambda: self.controller.show_frame("Start_Page"), font=('Arial', 18)).grid(row=2, column=0, pady=20)
+        tk.Button(self, text="Confirm", command=lambda: self.controller.show_frame("Start_Page"), font=('Arial', 18)).grid(row=2, column=1, pady=20)
 
     # Display the booking summary
     def tkraise(self, aboveThis=None):
@@ -297,11 +297,11 @@ class AvailableSeatsPage(tk.Frame):
 
     # Create widgets for available seats page
     def create_widgets(self):
-        tk.Label(self, text="Available Seats", bg='darkblue', fg='gold').grid(row=0, column=0)  # Set the title to gold
-        self.seats_text = tk.Text(self, height=15, width=50)
-        self.seats_text.grid(row=1, column=0, columnspan=2)
+        tk.Label(self, text="Available Seats", bg='darkblue', fg='gold', font=('Arial', 18, 'bold')).grid(row=0, column=0, columnspan=2, pady=10)  # Set the title to gold
+        self.seats_text = tk.Text(self, height=15, width=40, font=('Arial', 16))
+        self.seats_text.grid(row=1, column=0, columnspan=2, padx=20, pady=10)
 
-        tk.Button(self, text="Back", command=lambda: self.controller.show_frame("Start_Page")).grid(row=2, column=0, columnspan=2)
+        tk.Button(self, text="Back", command=lambda: self.controller.show_frame("Start_Page"), font=('Arial', 18)).grid(row=2, column=0, columnspan=2, pady=20)
 
     # Display the seat availability
     def tkraise(self, aboveThis=None):
