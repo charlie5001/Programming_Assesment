@@ -1,3 +1,5 @@
+#adding the gst portion to the summary
+#This Version does not contain the fix for the double appened
 import tkinter as tk
 from tkinter import messagebox
 
@@ -58,6 +60,13 @@ class Go_Bus_Bookings_App(tk.Tk):
             "Cost": sum(self.costs[self.temp_bookings['Route']][seat_type] * quantity 
                         for seat_type, quantity in self.temp_bookings['Seats'].items())
         }
+
+        self.final_bookings.append(booking)
+        self.booking_id += 1
+
+
+        gst_portion = booking['Cost'] - (booking['Cost'] / 1.15)
+        booking['GST Portion'] = round(gst_portion, 2)
 
         self.final_bookings.append(booking)
         self.booking_id += 1
@@ -310,8 +319,9 @@ class Confirmation_Page(tk.Frame):
                 self.details_text.insert(tk.END, f"{key}: {value}\n")
         cost = sum(self.controller.costs[self.controller.temp_bookings['Route']][seat_type] * quantity 
                    for seat_type, quantity in self.controller.temp_bookings['Seats'].items())
+        gst_portion = cost - (cost / 1.15)
         self.details_text.insert(tk.END, f"Total Cost: ${cost}\n")
-
+        self.details_text.insert(tk.END, f"GST Portion: ${round(gst_portion, 2)}\n")
 # Page displaying a summary of all bookings
 class Summary_Page(tk.Frame):
     def __init__(self, parent, controller):

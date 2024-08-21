@@ -1,3 +1,5 @@
+#adding the gst portion to the summary
+#This Version does not contain the fix for the double appened
 import tkinter as tk
 from tkinter import messagebox
 
@@ -58,8 +60,12 @@ class Go_Bus_Bookings_App(tk.Tk):
             "Cost": sum(self.costs[self.temp_bookings['Route']][seat_type] * quantity 
                         for seat_type, quantity in self.temp_bookings['Seats'].items())
         }
+        gst_portion = booking['Cost'] - (booking['Cost'] / 1.15)
+        booking['GST Portion'] = round(gst_portion, 2)
 
-        self.final_bookings.append(booking)
+        # Ensure no duplicate booking ID is added
+        if not any(b['Booking ID'] == self.booking_id for b in self.final_bookings):
+            self.final_bookings.append(booking)
         self.booking_id += 1
 
         # Update seat limits
@@ -92,7 +98,7 @@ class Go_Bus_Bookings_App(tk.Tk):
 
     # Display the summary of all bookings
     def display_summary(self, text_widget):
-        text_widget.delete(1.0, tk.END)
+        text_widget.delete(1.0, tk.END)  # Clear the text widget to avoid duplicates
         for booking in self.final_bookings:
             for key, value in booking.items():
                 text_widget.insert(tk.END, f"{key}: {value}\n")
@@ -310,8 +316,9 @@ class Confirmation_Page(tk.Frame):
                 self.details_text.insert(tk.END, f"{key}: {value}\n")
         cost = sum(self.controller.costs[self.controller.temp_bookings['Route']][seat_type] * quantity 
                    for seat_type, quantity in self.controller.temp_bookings['Seats'].items())
+        gst_portion = cost - (cost / 1.15)
         self.details_text.insert(tk.END, f"Total Cost: ${cost}\n")
-
+        self.details_text.insert(tk.END, f"GST Portion: ${round(gst_portion, 2)}\n")
 # Page displaying a summary of all bookings
 class Summary_Page(tk.Frame):
     def __init__(self, parent, controller):
